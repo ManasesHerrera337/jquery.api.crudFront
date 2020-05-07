@@ -71,14 +71,18 @@ jQuery.fn.store = function(success) {
 	var ob = $(this[0]);
 	ob.submit(function(e){
 		e.preventDefault();
-		var data = new FormData(ob.context);	
+		var formData = new FormData(ob.context); //	
+		formData.append("name", "value"); //necesario para al formdata
 		var al = null;
-		
+
 		$.ajax({
 	       	type:'POST',
-	     	data: data,
+	     	data: formData,
 	       	url: $(ob).attr('action'),
 	     	dataType: "json",//necesario para recibir objetos json
+			cache: false,
+			contentType: false,
+			processData: false,
 	     	beforeSend: function() {
 	 			al = $.alert({ 
 						icon: 'fa fa-spinner fa-spin',
@@ -121,12 +125,13 @@ jQuery.fn.storeFile = function(success) {
 	var ob = $(this[0]);
 	ob.submit(function(e){
 		e.preventDefault();
-		var data = new FormData(ob.context);	
+		var formData = new FormData(ob.context);	
+		formData.append("name", "value"); //necesario para al formdata
 		var al = null;
 		
 		$.ajax({
 	       	type:'POST',
-	     	data: data,
+	     	data: formData,
 	       	url: $(ob).attr('action'),
 	     	dataType: "html",
 			cache: false,
@@ -214,7 +219,8 @@ jQuery.fn.update = function( success) {
 	var ob = $(this[0]);
 	ob.submit(function(e){
 		e.preventDefault();
-		var data = new FormData(ob.context);	
+		var formData = new FormData(ob.context);	
+		formData.append("name", "value"); //necesario para al formdata
 		var al = null;
 
 		$.ajaxSetup({
@@ -225,9 +231,12 @@ jQuery.fn.update = function( success) {
 		
 		$.ajax({
 	       	type:'PATCH',
-	     	data: data,
+	     	data: formData,
 	       	url: $(ob).attr('action'),
 	     	dataType: "json",//necesario para recibir objetos json
+	     	cache: false,
+			contentType: false,
+			processData: false,
 	     	beforeSend: function() {
 	 			al = $.alert({ 
 						icon: 'fa fa-spinner fa-spin',
@@ -322,11 +331,4 @@ jQuery.delete = function(url, success){
         }
     });
 }
-
-
-
-
-
-
-
 
