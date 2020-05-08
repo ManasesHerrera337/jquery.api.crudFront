@@ -90,16 +90,17 @@ jQuery.fn.store = function(success) {
 						content: 'Espere hasta que esta ventana se cierre automaticamente'
 					});
 	     	},
-	       	success:function(data){
+	       	success: function(data){
 	       		al.close();
 	       		success(data);
 	       		
 
 	        },
 	        error: function(jqXHR, textStatus, errorThrown){
+	        	al.close();
 	        	$.alert({ 
 					title: '¡Oh oh!',
-			        content: "Error inesperado" + errorThrown,
+			        content: "Error inesperado " + errorThrown,
 			        type: 'red',
 			        typeAnimated: true
 			    });
@@ -133,7 +134,7 @@ jQuery.fn.storeFile = function(success) {
 	       	type:'POST',
 	     	data: formData,
 	       	url: $(ob).attr('action'),
-	     	dataType: "html",
+	     	dataType: "json",
 			cache: false,
 			contentType: false,
 			processData: false,
@@ -151,9 +152,10 @@ jQuery.fn.storeFile = function(success) {
 
 	        },
 	        error: function(jqXHR, textStatus, errorThrown){
+	        	al.close();
 	        	$.alert({ 
 					title: '¡Oh oh!',
-			        content: "Error inesperado" + errorThrown,
+			        content: "Error inesperado " + errorThrown,
 			        type: 'red',
 			        typeAnimated: true
 			    });
@@ -192,10 +194,10 @@ jQuery.showdata = function(url, success){
    			success(data);
         },
         error:  function (jqXHR, textStatus, errorThrown){
-        	
+        	al.close();
         	$.alert({ 
 				title: '¡Oh oh!',
-		        content: "Error inesperado" + errorThrown,
+		        content: "Error inesperado " + errorThrown,
 		        type: 'red',
 		        typeAnimated: true
 		    });
@@ -211,32 +213,39 @@ jQuery.showdata = function(url, success){
 *	FUNCION PARA ACTUALIZAR
 *	ENVIA POR PATCH AL METODO "update" EN EL CONTROLADOR
 *
-*	call: $(Form).update(function(res){ // ... // });
+*   if mode = true -> funcion update with submit
+*	call: $(Form).update( true , function(res){ // ... // });
+*	else
+*	call: function update(){
+		$(Form).update(false, function(res){ // ... // });
+	}	
 *	@retorn funcions callblack con la data response
 */
 
-jQuery.fn.update = function( success) {
+jQuery.fn.update = function(mode, success) {
 	var ob = $(this[0]);
-	ob.submit(function(e){
-		e.preventDefault();
-		var formData = new FormData(ob.context);	
-		formData.append("name", "value"); //necesario para al formdata
-		var al = null;
+	
 
+	function sendServer(){
+		var al = null;
+		// NO PUEDO OBTENER LA DATA DEL FORMULARIO CON FORMDATA 
+		// POR LA CONFIGURACION QUE DEBE TERNE AJAXSETUP EN LARAVEL
+		// var data = new FormData( ob.context );	
+		// data.append("name", "value"); //necesario para al formdata
 		$.ajaxSetup({
         	headers: {
             	'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         	}
 		});
-		
+
 		$.ajax({
 	       	type:'PATCH',
-	     	data: formData,
+	     	data: $(ob).serialize() , // ??   
 	       	url: $(ob).attr('action'),
 	     	dataType: "json",//necesario para recibir objetos json
-	     	cache: false,
-			contentType: false,
-			processData: false,
+	     	// cache: false,
+			// contentType: false,
+			// processData: false,
 	     	beforeSend: function() {
 	 			al = $.alert({ 
 						icon: 'fa fa-spinner fa-spin',
@@ -251,15 +260,31 @@ jQuery.fn.update = function( success) {
 
 	        },
 	        error: function(jqXHR, textStatus, errorThrown){
+	        	al.close();
 	        	$.alert({ 
 					title: '¡Oh oh!',
-			        content: "Error inesperado" + errorThrown,
+			        content: "Error inesperado " + errorThrown,
 			        type: 'red',
 			        typeAnimated: true
 			    });
 	        }
 	    });	
-	});
+	}
+
+	if (mode) {
+		ob.submit(function(e){
+			e.preventDefault();
+			sendServer();
+		});
+	}else{
+		sendServer();
+	}
+		
+		
+	
+
+
+		
 }   			
 
 
@@ -267,7 +292,7 @@ jQuery.fn.update = function( success) {
 
 
 /*
-*   FUNCION PARA ELIMINA
+*   FUNCION PARA ELIMINAR
 *	ENVIA POR DELETE AL METODO "destroy" EN EL CONTROLADOR
 *
 *	call: $.delete( url , function(res){ // ... // });
@@ -311,9 +336,10 @@ jQuery.delete = function(url, success){
 			            },
 			            error: function(jqXHR, textStatus, errorThrown) 
 			            { 
+			            	al.close();
 				          	$.alert({ 
 								title: '¡Oh oh!',
-						        content: "Error inesperado" + errorThrown,
+						        content: "Error inesperado " + errorThrown,
 						        type: 'red',
 						        typeAnimated: true
 						    });
@@ -331,4 +357,56 @@ jQuery.delete = function(url, success){
         }
     });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+*	
+*	NO FUNCIONA
+*	
+
+// jQuery.fn.makeDataTable = function( table , url, columns) {
+// 	var ob = $(this[0]);
+
+// 	ob.ready(function(){
+		
+		
+// 		alert("se cargó la pagina");
+// 		var table = $( table ).DataTable({
+// 		  	processing: true,
+// 			serverSide: true,
+// 			ajax: { 'url': url, 
+// 		            "data": {
+// 		            "_token": $('meta[name="csrf-token"]').attr('content'),
+// 		            'action':'showtable'
+// 		            }
+// 		        },
+// 			columns: columns,
+// 				dom: 'B<"clear">lfrtip',
+// 				buttons: []
+// 		});
+
+
+// 	});
+// }
+
 
