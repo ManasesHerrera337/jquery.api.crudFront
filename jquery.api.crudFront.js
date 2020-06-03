@@ -410,6 +410,4 @@ jQuery.delete = function(url, success){
 // }
 
 
-
 */
-
